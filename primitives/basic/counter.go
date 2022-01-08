@@ -87,7 +87,6 @@ func RWCountToN(n int) {
 		}
 	}
 
-	wg.Done()
-	time.Sleep(time.Second)
+	wg.Wait()
 	log.Printf("Reading and counting to %d ended.\n", n)
 }

@@ -3,7 +3,10 @@ package primitives
 import (
 	"fmt"
 	"log"
+	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 	"time"
 )
 
@@ -102,4 +105,31 @@ func PrintOnceToN(n int) {
 	for i := 0; i < 100; i++ {
 		once.Do(printerToN)
 	}
+}
+
+func CondJobWhenNotified() {
+	cond := sync.NewCond(&sync.Mutex{})
+
+	job := func() {
+		cond.L.Lock()
+		defer cond.L.Unlock()
+
+		fmt.Println("Waiting for event!")
+		time.Sleep(time.Second)
+		cond.Wait()
+		time.Sleep(time.Second)
+		fmt.Println("\tDoing my job!")
+	}
+
+	go job()
+	go job()
+	go job()
+
+	<-time.NewTimer(5 * time.Second).C
+	fmt.Println("Broadcasting!")
+	cond.Broadcast()
+
+	end := make(chan os.Signal, 1)
+	signal.Notify(end, os.Interrupt, syscall.SIGTERM)
+	<-end
 }

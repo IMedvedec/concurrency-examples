@@ -90,3 +90,16 @@ func RWCountToN(n int) {
 	wg.Wait()
 	log.Printf("Reading and counting to %d ended.\n", n)
 }
+
+func PrintOnceToN(n int) {
+	printerToN := func() {
+		for i := 1; i <= n; i++ {
+			fmt.Printf("Printing #%d\n", i)
+		}
+	}
+
+	var once sync.Once
+	for i := 0; i < 100; i++ {
+		once.Do(printerToN)
+	}
+}
